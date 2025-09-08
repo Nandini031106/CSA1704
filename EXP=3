@@ -1,0 +1,49 @@
+from collections import deque
+
+def water_jug_problem(x, y, z):
+    """
+    x: size of jug 1
+    y: size of jug 2
+    z: target amount of water
+    Returns the sequence of steps to reach the target amount of water, or None if impossible.
+    Each step is a list of actions taken to reach that state.
+    """
+    queue = deque([ (0, 0, []) ])
+    visited = set()
+
+    while queue:
+        a, b, steps = queue.popleft()
+
+        if (a, b) in visited:
+            continue
+
+        visited.add((a, b))
+
+        if a == z or b == z:
+            return steps
+
+        # fill jug 1
+        queue.append((x, b, steps + ['fill jug 1']))
+        # fill jug 2
+        queue.append((a, y, steps + ['fill jug 2']))
+        # empty jug 1
+        queue.append((0, b, steps + ['empty jug 1']))
+        # empty jug 2
+        queue.append((a, 0, steps + ['empty jug 2']))
+
+        # pour jug 1 -> jug 2
+        amount = min(a, y - b)
+        queue.append((a - amount, b + amount, steps + ['pour jug 1 into jug 2']))
+
+        # pour jug 2 -> jug 1
+        amount = min(x - a, b)
+        queue.append((a + amount, b - amount, steps + ['pour jug 2 into jug 1']))
+
+    return None
+
+steps = water_jug_problem(4, 3, 2)
+print(steps)
+
+
+OUTPUT:
+['fill jug 2', 'pour jug 2 into jug 1', 'fill jug 2', 'pour jug 2 into jug 1']
