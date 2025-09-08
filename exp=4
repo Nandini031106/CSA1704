@@ -1,0 +1,80 @@
+from itertools import permutations
+
+def word_value(word, mapping):
+    """
+    Compute the numeric value of a word given a letter-to-digit mapping.
+    Example: if mapping {'S':9, 'E':5, 'N':6, 'D':7, ...}, word_value('SEND', mapping)
+    = 9*1000 + 5*100 + 6*10 + 7
+    """
+    value = 0
+    for ch in word:
+        value = value * 10 + mapping[ch]
+    return value
+
+def solve_cryptarithmetic(puzzle):
+    """
+    Solve a cryptarithmetic puzzle of the form 'SEND + MORE = MONEY'.
+    Returns a dictionary mapping letters->digits if a solution exists, else None.
+    """
+    # Normalize puzzle and split into words
+    # We expect exactly two addends and one result, separated by '+' and '='
+    puzzle = puzzle.strip().replace('=', ' = ').replace('+', ' + ')
+    parts = puzzle.split()
+    # Extract words (ignore '+' and '=' tokens)
+    words = [w for w in parts if w.isalpha()]
+    if len(words) != 3:
+        raise ValueError("Puzzle must be in the form 'WORD1 + WORD2 = RESULT' with alphabetic words.")
+
+    w1, w2, w3 = words
+    # Unique letters
+    unique_letters = sorted(set(''.join(words)))
+    if len(unique_letters) > 10:
+        return None  # Impossible to map >10 unique letters to digits
+
+    # Leading letters cannot be zero
+    leading = {w1[0], w2[0], w3[0]}
+    leading = {ch for ch in leading if ch.isalpha()}
+
+    # Precompute for speed (optional)
+    letters = unique_letters
+
+    # Try all permutations of digits for the letters
+    for digits in permutations(range(10), len(letters)):
+        mapping = dict(zip(letters, digits))
+
+        # Leading zeros check
+        if any(mapping[ch] == 0 for ch in leading):
+            continue
+
+        # Compute numeric values
+        n1 = word_value(w1, mapping)
+        n2 = word_value(w2, mapping)
+        n3 = word_value(w3, mapping)
+
+        if n1 + n2 == n3:
+            return mapping
+
+    return None
+
+def main():
+    puzzle = "SEND + MORE = MONEY"
+    solution = solve_cryptarithmetic(puzzle)
+    if solution:
+        print("Solution found:")
+        for letter in sorted(solution.keys()):
+            print(f"  {letter} -> {solution[letter]}")
+        # Optional: display the numeric equation
+        w1, w2, w3 = "SEND", "MORE", "MONEY"
+        n1 = word_value(w1, solution)
+        n2 = word_value(w2, solution)
+        n3 = word_value(w3, solution)
+        print(f"\n{n1} + {n2} = {n3}")
+    else:
+        print("No solution found for the given puzzle.")
+
+if __name__ == "__main__":
+    main()
+
+output:
+  S -> 9
+  Y -> 2
