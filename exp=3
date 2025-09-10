@@ -1,0 +1,46 @@
+from collections import deque
+
+def water_jug(x, y, target):
+    visited = set()
+    q = deque()
+    q.append((0, 0))
+
+    while q:
+        a, b = q.popleft()
+
+        if (a, b) in visited:
+            continue
+        visited.add((a, b))
+
+        print(a, b)
+
+        if a == target or b == target:
+            print("Reached target!")
+            return True
+
+        # Possible moves
+        moves = [
+            (x, b),  # Fill Jug1
+            (a, y),  # Fill Jug2
+            (0, b),  # Empty Jug1
+            (a, 0),  # Empty Jug2
+            (min(a+b, x), 0 if a+b <= x else a+b-x),  # Pour Jug2->Jug1
+            (0 if a+b <= y else a+b-y, min(a+b, y))   # Pour Jug1->Jug2
+        ]
+
+        for m in moves:
+            if m not in visited:
+                q.append(m)
+
+    return False
+
+# Example: Jug1=4L, Jug2=3L, Target=2L
+water_jug(4, 3, 2)
+
+output:
+0 0
+4 0
+0 3
+4 3
+0 2
+Reached target!
